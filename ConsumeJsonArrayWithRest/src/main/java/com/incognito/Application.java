@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
 public class Application {
@@ -24,8 +25,12 @@ public class Application {
 	@Bean
 	public CommandLineRunner run(RestTemplate r) throws Exception{
 		return args->{
-			Object a = r.getForObject("https://www.ing.nl/api/locator/atms/", String.class);
-			log.info(a.toString());
+			String s = r.getForObject("https://www.ing.nl/api/locator/atms/", String.class);
+			ObjectMapper o = new ObjectMapper();
+			Atm[] locations = o.readValue(s.substring(5), Atm[].class);
+			for(Atm a: locations){
+				System.out.println(a.getAddress().getCity() + "\t\t\t\t" + a.getDistance());
+			}
 		};
 	}
 }
